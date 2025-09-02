@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>包车标志牌信息</title>
+    <title>客运包车运次备案信息</title>
     <script src="https://cdn.tailwindcss.com/3.3.3"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
@@ -28,21 +28,26 @@
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px solid #e5e7eb;
+            color: #444; /* 深灰色标题 */
         }
-        .info-item {
-            display: flex;
-            margin-bottom: 15px;
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        .label {
-            width: 120px;
-            text-align: right;
-            padding-right: 15px;
-            color: #666;
-            font-weight: 500;
+        .info-table th, .info-table td {
+            border: 1px solid #e5e7eb;
+            padding: 12px 15px;
         }
-        .value {
-            flex: 1;
+        .info-table th {
+            width: 35%;
+            font-weight: 600;
+            color: #333;
+            text-align: right; /* 标题单元格右对齐 */
+        }
+        .info-table td {
+            width: 65%;
             word-break: break-word;
+            text-align: left; /* 数据单元格左对齐 */
         }
         .footer {
             text-align: center;
@@ -54,57 +59,46 @@
 </head>
 <body>
     <div class="card">
-        <div class="title">包车标志牌信息</div>
+        <div class="title">客运包车运次备案信息</div>
         
-        <div class="info-item">
-            <div class="label">车辆号牌</div>
-            <div class="value" id="vehicleNumber">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">车辆号牌颜色</div>
-            <div class="value" id="vehicleColor">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">标志牌顺序号</div>
-            <div class="value" id="signSerialNumber">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">起始地</div>
-            <div class="value" id="startLocation">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">途经地</div>
-            <div class="value" id="viaLocation">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">终到地</div>
-            <div class="value" id="endLocation">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">驾驶员</div>
-            <div class="value" id="driverName">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">有效期起</div>
-            <div class="value" id="validStart">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">有效期止</div>
-            <div class="value" id="validEnd">--</div>
-        </div>
-        
-        <div class="info-item">
-            <div class="label">运输企业</div>
-            <div class="value" id="transportCompany">--</div>
-        </div>
+        <table class="info-table">
+            <tr>
+                <th>起始地</th>
+                <td id="startLocation">--</td>
+            </tr>
+            <tr>
+                <th>终到地</th>
+                <td id="endLocation">--</td>
+            </tr>
+            <tr>
+                <th>标志牌序号</th>
+                <td id="signSerialNumber">--</td>
+            </tr>
+            <tr>
+                <th>车牌号</th>
+                <td id="vehicleNumber">--</td>
+            </tr>
+            <tr>
+                <th>运输企业</th>
+                <td id="transportCompany">--</td>
+            </tr>
+            <tr>
+                <th>驾驶员姓名</th>
+                <td id="driverName">--</td>
+            </tr>
+            <tr>
+                <th>企业签发人</th>
+                <td id="issuer">--</td>
+            </tr>
+            <tr>
+                <th>主要途径地</th>
+                <td id="viaLocation">--</td>
+            </tr>
+            <tr>
+                <th>有效期</th>
+                <td id="validPeriod">--</td>
+            </tr>
+        </table>
         
         <div class="footer">
             <div class="text-xs text-gray-400 mt-1">以上为包车标志牌所含信息，仅供参考</div>
@@ -116,13 +110,13 @@
             const params = new URLSearchParams(window.location.search);
             const data = {
                 vehicleNumber: params.get('vehicleNumber') || '--',
-                vehicleColor: params.get('vehicleColor') || '--',
                 signSerialNumber: params.get('signSerialNumber') || '--',
                 startLocation: params.get('startLocation') || '--',
                 viaLocation: params.get('viaLocation') || '--',
                 endLocation: params.get('endLocation') || '--',
                 driverName: params.get('driverName') || '--',
-                transportCompany: params.get('transportCompany') || '--'
+                transportCompany: params.get('transportCompany') || '--',
+                issuer: params.get('issuer') || '--'
             };
 
             // 处理日期格式化
@@ -130,11 +124,13 @@
                 if (!dateStr) return '--';
                 const date = new Date(dateStr);
                 if (isNaN(date.getTime())) return '--';
-                return `${date.getFullYear()}年${(date.getMonth() + 1).toString().padStart(2, '0')}月${date.getDate().toString().padStart(2, '0')}日`;
+                return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
             };
 
-            data.validStart = formatDate(params.get('validStart'));
-            data.validEnd = formatDate(params.get('validEnd'));
+            // 合并有效期
+            const startDate = formatDate(params.get('validStart'));
+            const endDate = formatDate(params.get('validEnd'));
+            data.validPeriod = startDate !== '--' && endDate !== '--' ? `${startDate} 至 ${endDate}` : '--';
 
             return data;
         }
@@ -142,16 +138,15 @@
         window.onload = function() {
             const data = parseQueryParams();
             
-            document.getElementById('vehicleNumber').textContent = data.vehicleNumber;
-            document.getElementById('vehicleColor').textContent = data.vehicleColor;
-            document.getElementById('signSerialNumber').textContent = data.signSerialNumber;
             document.getElementById('startLocation').textContent = data.startLocation;
-            document.getElementById('viaLocation').textContent = data.viaLocation;
             document.getElementById('endLocation').textContent = data.endLocation;
-            document.getElementById('driverName').textContent = data.driverName;
-            document.getElementById('validStart').textContent = data.validStart;
-            document.getElementById('validEnd').textContent = data.validEnd;
+            document.getElementById('signSerialNumber').textContent = data.signSerialNumber;
+            document.getElementById('vehicleNumber').textContent = data.vehicleNumber;
             document.getElementById('transportCompany').textContent = data.transportCompany;
+            document.getElementById('driverName').textContent = data.driverName;
+            document.getElementById('issuer').textContent = data.issuer;
+            document.getElementById('viaLocation').textContent = data.viaLocation;
+            document.getElementById('validPeriod').textContent = data.validPeriod;
         };
     </script>
 </body>
