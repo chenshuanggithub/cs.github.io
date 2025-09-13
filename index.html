@@ -66,116 +66,117 @@
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="title">客运包车运次备案信息</div>
-        
-        <div id="error" class="error-message" style="display: none;"></div>
-        
-        <table class="info-table">
-            <tr>
-                <th>起始地</th>
-                <td id="startLocation">--</td>
-            </tr>
-            <tr>
-                <th>终到地</th>
-                <td id="endLocation">--</td>
-            </tr>
-            <tr>
-                <th>标志牌序号</th>
-                <td id="signSerialNumber">--</td>
-            </tr>
-            <tr>
-                <th>车牌号</th>
-                <td id="vehicleNumber">--</td>
-            </tr>
-            <tr>
-                <th>运输企业</th>
-                <td id="transportCompany">--</td>
-            </tr>
-            <tr>
-                <th>驾驶员姓名</th>
-                <td id="driverName">--</td>
-            </tr>
-            <tr>
-                <th>企业签发人</th>
-                <td id="reserved1">--</td>
-            </tr>
-            <tr>
-                <th>主要途径地</th>
-                <td id="viaLocation">--</td>
-            </tr>
-            <tr>
-                <th>有效期</th>
-                <td id="validPeriod">--</td>
-            </tr>
-        </table>
-        
-        <div class="footer">
-            <div class="text-xs text-gray-400 mt-1">以上为包车标志牌所含信息，仅供参考</div>
-        </div>
+<div class="card">
+    <div class="title">客运包车运次备案信息</div>
+
+    <div id="error" class="error-message" style="display: none;"></div>
+
+    <table class="info-table">
+        <tr>
+            <th>起始地</th>
+            <td id="startLocation">--</td>
+        </tr>
+        <tr>
+            <th>终到地</th>
+            <td id="endLocation">--</td>
+        </tr>
+        <tr>
+            <th>标志牌序号</th>
+            <td id="signSerialNumber">--</td>
+        </tr>
+        <tr>
+            <th>车牌号</th>
+            <td id="vehicleNumber">--</td>
+        </tr>
+        <tr>
+            <th>运输企业</th>
+            <td id="transportCompany">--</td>
+        </tr>
+        <tr>
+            <th>驾驶员姓名</th>
+            <td id="driverName">--</td>
+        </tr>
+        <tr>
+            <th>企业签发人</th>
+            <td id="reserved1">--</td>
+        </tr>
+        <tr>
+            <th>主要途径地</th>
+            <td id="viaLocation">--</td>
+        </tr>
+        <tr>
+            <th>有效期</th>
+            <td id="validPeriod">--</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <div class="text-xs text-gray-400 mt-1">以上为包车标志牌所含信息，仅供参考</div>
     </div>
+</div>
 
-    <script>
-        function getUrlParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
+<script>
+    function getUrlParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '--';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return '--';
+        return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+    }
+
+    window.onload = async function() {
+        const id = getUrlParam('id');
+        if (!id) {
+            document.getElementById('error').textContent = '未找到ID参数，请检查URL是否包含id=xxx';
+            document.getElementById('error').style.display = 'block';
+            return;
         }
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '--';
-            const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return '--';
-            return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+        // 修正：将HTTP改为HTTPS以解决混合内容错误
+        const apiUrl = `https://47.93.146.8/bus/busCharterInfo/getInfoById/${id}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP错误，状态码: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.code !== 0) { // 假设R.ok()对应code为0
+                throw new Error(result.msg || '获取数据失败');
+            }
+
+            const busCharterInfo = result.data;
+            if (!busCharterInfo) {
+                throw new Error('未找到包车信息数据');
+            }
+
+            // 填充数据到表格
+            document.getElementById('startLocation').textContent = busCharterInfo.startLocation || '--';
+            document.getElementById('endLocation').textContent = busCharterInfo.endLocation || '--';
+            document.getElementById('signSerialNumber').textContent = busCharterInfo.signSerialNumber || '--';
+            document.getElementById('vehicleNumber').textContent = busCharterInfo.vehicleNumber || '--';
+            document.getElementById('transportCompany').textContent = busCharterInfo.transportCompany || '--';
+            document.getElementById('driverName').textContent = busCharterInfo.driverName || '--';
+            document.getElementById('reserved1').textContent = busCharterInfo.reserved1 || '--';
+            document.getElementById('viaLocation').textContent = busCharterInfo.viaLocation || '--';
+
+            // 处理有效期
+            const startDate = formatDate(busCharterInfo.validStart);
+            const endDate = formatDate(busCharterInfo.validEnd);
+            document.getElementById('validPeriod').textContent = startDate !== '--' && endDate !== '--' ? `${startDate} 至 ${endDate}` : '--';
+
+        } catch (error) {
+            document.getElementById('error').textContent = `获取数据失败: ${error.message}`;
+            document.getElementById('error').style.display = 'block';
+            console.error('请求错误:', error);
         }
-
-        window.onload = async function() {
-            const id = getUrlParam('id');
-            if (!id) {
-                document.getElementById('error').textContent = '未找到ID参数，请检查URL是否包含id=xxx';
-                document.getElementById('error').style.display = 'block';
-                return;
-            }
-
-            const apiUrl = `http://47.93.146.8/bus/busCharterInfo/getInfoById/${id}`;
-            
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP错误，状态码: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
-                if (result.code !== 0) { // 假设R.ok()对应code为0
-                    throw new Error(result.msg || '获取数据失败');
-                }
-                
-                const busCharterInfo = result.data;
-                if (!busCharterInfo) {
-                    throw new Error('未找到包车信息数据');
-                }
-
-                // 填充数据到表格
-                document.getElementById('startLocation').textContent = busCharterInfo.startLocation || '--';
-                document.getElementById('endLocation').textContent = busCharterInfo.endLocation || '--';
-                document.getElementById('signSerialNumber').textContent = busCharterInfo.signSerialNumber || '--';
-                document.getElementById('vehicleNumber').textContent = busCharterInfo.vehicleNumber || '--';
-                document.getElementById('transportCompany').textContent = busCharterInfo.transportCompany || '--';
-                document.getElementById('driverName').textContent = busCharterInfo.driverName || '--';
-                document.getElementById('reserved1').textContent = busCharterInfo.reserved1 || '--';
-                document.getElementById('viaLocation').textContent = busCharterInfo.viaLocation || '--';
-                
-                // 处理有效期
-                const startDate = formatDate(busCharterInfo.validStart);
-                const endDate = formatDate(busCharterInfo.validEnd);
-                document.getElementById('validPeriod').textContent = startDate !== '--' && endDate !== '--' ? `${startDate} 至 ${endDate}` : '--';
-
-            } catch (error) {
-                document.getElementById('error').textContent = `获取数据失败: ${error.message}`;
-                document.getElementById('error').style.display = 'block';
-                console.error('请求错误:', error);
-            }
-        };
-    </script>
+    };
+</script>
 </body>
 </html>
