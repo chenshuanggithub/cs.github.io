@@ -4,105 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>客运包车运次备案信息</title>
-    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
+            font-family: 'SimSun', serif;
+            background-color: #ffffff;
+            color: #333333;
+            margin: 0;
             padding: 20px;
         }
-        .card {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            max-width: 600px;
+        .container {
+            max-width: 800px;
             margin: 0 auto;
         }
         .title {
             text-align: center;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e5e7eb;
-            color: #444; /* 深灰色标题 */
+            margin: 5px 0 15px 0; /* 调整上边距为5px，减小与顶部距离 */
+            color: #333333;
         }
         .info-table {
             width: 100%;
             border-collapse: collapse;
+            border: 1px solid #dddddd;
         }
         .info-table th, .info-table td {
-            border: 1px solid #e5e7eb;
-            padding: 12px 15px;
+            border: 1px solid #dddddd;
+            padding: 8px 10px;
+            font-size: 13px;
         }
         .info-table th {
             width: 35%;
-            font-weight: 600;
-            color: #333;
-            text-align: right; /* 标题单元格右对齐 */
+            background-color: #f5f5f5;
+            text-align: right;
+            font-weight: bold;
         }
         .info-table td {
             width: 65%;
-            word-break: break-word;
-            text-align: left; /* 数据单元格左对齐 */
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #999;
-            font-size: 14px;
+            text-align: left;
+            background-color: #ffffff;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="title">客运包车运次备案信息</div>
-        
+    <div class="container">
+        <h1 class="title">客运包车运次备案信息</h1>
         <table class="info-table">
             <tr>
-                <th>起始地</th>
+                <th>起始地：</th>
                 <td id="startLocation">--</td>
             </tr>
             <tr>
-                <th>终到地</th>
+                <th>终到地：</th>
                 <td id="endLocation">--</td>
             </tr>
             <tr>
-                <th>标志牌序号</th>
+                <th>标志牌顺序号：</th>
                 <td id="signSerialNumber">--</td>
             </tr>
             <tr>
-                <th>车牌号</th>
+                <th>车牌号：</th>
                 <td id="vehicleNumber">--</td>
             </tr>
             <tr>
-                <th>运输企业</th>
+                <th>运输企业：</th>
                 <td id="transportCompany">--</td>
             </tr>
             <tr>
-                <th>驾驶员姓名</th>
+                <th>驾驶员姓名：</th>
                 <td id="driverName">--</td>
             </tr>
             <tr>
-                <th>企业签发人</th>
+                <th>企业签发人：</th>
                 <td id="reserved1">--</td>
             </tr>
             <tr>
-                <th>主要途径地</th>
+                <th>主要途径地：</th>
                 <td id="viaLocation">--</td>
             </tr>
             <tr>
-                <th>有效期</th>
+                <th>有效期：</th>
                 <td id="validPeriod">--</td>
             </tr>
         </table>
-        
-        <div class="footer">
-            <div class="text-xs text-gray-400 mt-1">以上为包车标志牌所含信息，仅供参考</div>
-        </div>
     </div>
 
     <script>
@@ -119,7 +103,6 @@
                 reserved1: params.get('reserved1') || '--'
             };
 
-            // 处理日期格式化
             const formatDate = (dateStr) => {
                 if (!dateStr) return '--';
                 const date = new Date(dateStr);
@@ -127,7 +110,6 @@
                 return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
             };
 
-            // 合并有效期
             const startDate = formatDate(params.get('validStart'));
             const endDate = formatDate(params.get('validEnd'));
             data.validPeriod = startDate !== '--' && endDate !== '--' ? `${startDate} 至 ${endDate}` : '--';
@@ -137,7 +119,6 @@
 
         window.onload = function() {
             const data = parseQueryParams();
-            
             document.getElementById('startLocation').textContent = data.startLocation;
             document.getElementById('endLocation').textContent = data.endLocation;
             document.getElementById('signSerialNumber').textContent = data.signSerialNumber;
