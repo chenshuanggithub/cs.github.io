@@ -4,130 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>客运包车运次备案信息</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
         body {
-            font-family: 'SimSun', serif;
-            background-color: #ffffff;
-            color: #333333;
-            margin: 0;
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
             padding: 20px;
         }
-        .container {
-            max-width: 800px;
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
             margin: 0 auto;
         }
         .title {
             text-align: center;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            margin: 5px 0 15px 0; /* 调整上边距为5px，减小与顶部距离 */
-            color: #333333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #444;
         }
         .info-table {
             width: 100%;
             border-collapse: collapse;
-            border: 1px solid #dddddd;
         }
         .info-table th, .info-table td {
-            border: 1px solid #dddddd;
-            padding: 8px 10px;
-            font-size: 13px;
+            border: 1px solid #e5e7eb;
+            padding: 12px 15px;
         }
         .info-table th {
             width: 35%;
-            background-color: #f5f5f5;
+            font-weight: 600;
+            color: #333;
             text-align: right;
-            font-weight: bold;
         }
         .info-table td {
             width: 65%;
+            word-break: break-word;
             text-align: left;
-            background-color: #ffffff;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f8d7da;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">客运包车运次备案信息</h1>
+    <div class="card">
+        <div class="title">客运包车运次备案信息</div>
+        
+        <div id="error" class="error-message" style="display: none;"></div>
+        
         <table class="info-table">
             <tr>
-                <th>起始地：</th>
+                <th>起始地</th>
                 <td id="startLocation">--</td>
             </tr>
             <tr>
-                <th>终到地：</th>
+                <th>终到地</th>
                 <td id="endLocation">--</td>
             </tr>
             <tr>
-                <th>标志牌顺序号：</th>
+                <th>标志牌序号</th>
                 <td id="signSerialNumber">--</td>
             </tr>
             <tr>
-                <th>车牌号：</th>
+                <th>车牌号</th>
                 <td id="vehicleNumber">--</td>
             </tr>
             <tr>
-                <th>运输企业：</th>
+                <th>运输企业</th>
                 <td id="transportCompany">--</td>
             </tr>
             <tr>
-                <th>驾驶员姓名：</th>
+                <th>驾驶员姓名</th>
                 <td id="driverName">--</td>
             </tr>
             <tr>
-                <th>企业签发人：</th>
+                <th>企业签发人</th>
                 <td id="reserved1">--</td>
             </tr>
             <tr>
-                <th>主要途径地：</th>
+                <th>主要途径地</th>
                 <td id="viaLocation">--</td>
             </tr>
             <tr>
-                <th>有效期：</th>
+                <th>有效期</th>
                 <td id="validPeriod">--</td>
             </tr>
         </table>
+        
+        <div class="footer">
+            <div class="text-xs text-gray-400 mt-1">以上为包车标志牌所含信息，仅供参考</div>
+        </div>
     </div>
 
     <script>
-        function parseQueryParams() {
-            const params = new URLSearchParams(window.location.search);
-            const data = {
-                vehicleNumber: params.get('vehicleNumber') || '--',
-                signSerialNumber: params.get('signSerialNumber') || '--',
-                startLocation: params.get('startLocation') || '--',
-                viaLocation: params.get('viaLocation') || '--',
-                endLocation: params.get('endLocation') || '--',
-                driverName: params.get('driverName') || '--',
-                transportCompany: params.get('transportCompany') || '--',
-                reserved1: params.get('reserved1') || '--'
-            };
-
-            const formatDate = (dateStr) => {
-                if (!dateStr) return '--';
-                const date = new Date(dateStr);
-                if (isNaN(date.getTime())) return '--';
-                return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-            };
-
-            const startDate = formatDate(params.get('validStart'));
-            const endDate = formatDate(params.get('validEnd'));
-            data.validPeriod = startDate !== '--' && endDate !== '--' ? `${startDate} 至 ${endDate}` : '--';
-
-            return data;
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
         }
 
-        window.onload = function() {
-            const data = parseQueryParams();
-            document.getElementById('startLocation').textContent = data.startLocation;
-            document.getElementById('endLocation').textContent = data.endLocation;
-            document.getElementById('signSerialNumber').textContent = data.signSerialNumber;
-            document.getElementById('vehicleNumber').textContent = data.vehicleNumber;
-            document.getElementById('transportCompany').textContent = data.transportCompany;
-            document.getElementById('driverName').textContent = data.driverName;
-            document.getElementById('reserved1').textContent = data.reserved1;
-            document.getElementById('viaLocation').textContent = data.viaLocation;
-            document.getElementById('validPeriod').textContent = data.validPeriod;
+        function formatDate(dateStr) {
+            if (!dateStr) return '--';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '--';
+            return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+        }
+
+        window.onload = async function() {
+            const id = getUrlParam('id');
+            if (!id) {
+                document.getElementById('error').textContent = '未找到ID参数，请检查URL是否包含id=xxx';
+                document.getElementById('error').style.display = 'block';
+                return;
+            }
+
+            const apiUrl = `http://47.93.146.8/bus/busCharterInfo/getInfoById/${id}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP错误，状态码: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.code !== 0) { // 假设R.ok()对应code为0
+                    throw new Error(result.msg || '获取数据失败');
+                }
+                
+                const busCharterInfo = result.data;
+                if (!busCharterInfo) {
+                    throw new Error('未找到包车信息数据');
+                }
+
+                // 填充数据到表格
+                document.getElementById('startLocation').textContent = busCharterInfo.startLocation || '--';
+                document.getElementById('endLocation').textContent = busCharterInfo.endLocation || '--';
+                document.getElementById('signSerialNumber').textContent = busCharterInfo.signSerialNumber || '--';
+                document.getElementById('vehicleNumber').textContent = busCharterInfo.vehicleNumber || '--';
+                document.getElementById('transportCompany').textContent = busCharterInfo.transportCompany || '--';
+                document.getElementById('driverName').textContent = busCharterInfo.driverName || '--';
+                document.getElementById('reserved1').textContent = busCharterInfo.reserved1 || '--';
+                document.getElementById('viaLocation').textContent = busCharterInfo.viaLocation || '--';
+                
+                // 处理有效期
+                const startDate = formatDate(busCharterInfo.validStart);
+                const endDate = formatDate(busCharterInfo.validEnd);
+                document.getElementById('validPeriod').textContent = startDate !== '--' && endDate !== '--' ? `${startDate} 至 ${endDate}` : '--';
+
+            } catch (error) {
+                document.getElementById('error').textContent = `获取数据失败: ${error.message}`;
+                document.getElementById('error').style.display = 'block';
+                console.error('请求错误:', error);
+            }
         };
     </script>
 </body>
